@@ -42,7 +42,11 @@ exports.loshuGrid = (req, res) => {
     const { date, gender, lang = 'en' } = req.query;
 
     if (!date || !gender) {
-        return res.status(400).json({ message: req.t('date_and_gender_required') });
+        return res.status(400).json({ 
+            success: false,
+            message: req.t('validation_error'),
+            errors: [req.t('date_and_gender_required')]
+        });
     }
 
     const radicalNumber = calculateRadicalNumber(date);
@@ -116,7 +120,11 @@ exports.numberAnalysis = (req, res) => {
 
     // Validation
     if (!name || !date || !phone || phone.length !== 10) {
-        return res.status(400).json({ message: req.t('name_date_phone_required') });
+        return res.status(400).json({
+            success: false,
+            message: req.t('validation_error'),
+            errors: [req.t('name_date_phone_required')]
+        });
     }
 
     const birthDate = new Date(date);
@@ -152,7 +160,11 @@ exports.numberAnalysis = (req, res) => {
 //     const { date, gender } = req.query;
 
 //     if (!date || !gender) {
-//         return res.status(400).json({ message: res.__('Missing required parameters') });
+//         return res.status(400).json({ 
+//             success: false,
+//             message: req.t('validation_error'),
+//             errors: [req.t('date_and_gender_required')]
+//         });
 //     }
 
 //     const planeDigits = [4, 9, 2];
@@ -165,7 +177,11 @@ exports.numberAnalysis = (req, res) => {
 //         data.percentageDescription = res.__('Intellectual plane weightage 100%');
 //     }
 
-//     return res.json({ success: true, data });
+//     return res.json({ 
+//         success: true, 
+//         message: req.t('success'),
+//         data
+//     });
 // };
 
 exports.planeDetails = (req, res) => {
@@ -173,7 +189,11 @@ exports.planeDetails = (req, res) => {
     const { date, gender } = req.query;
 
     if (!date || !gender) {
-        return res.status(400).json({ message: req.t('date_and_gender_required') });
+        return res.status(400).json({
+            success: false,
+            message: req.t('validation_error'),
+            errors: [req.t('date_and_gender_required')]
+        });
     }
 
     const planeConfig = {
@@ -208,7 +228,11 @@ exports.planeDetails = (req, res) => {
         data.percentageDescription = req.t(`${type}_plane_weightage_0`);
     }
 
-    return res.json({ success: true, data });
+    return res.json({ 
+        success: true, 
+        message: req.t('success'),
+        data
+    });
 };
 
 exports.missingNumbers = (req, res) => {
@@ -286,11 +310,11 @@ exports.missingNumbers = (req, res) => {
 
     return res.json({
         success: true,
+        message: req.t('success'),
         data: {
             missingNumbers: missingNumbers.join(','),
             missingNumberDetails: details
-        },
-        message: req.t('success')
+        }
     });
 };
 
@@ -328,11 +352,11 @@ exports.availableNumbers = (req, res) => {
 
     return res.json({
         success: true,
+        message: req.t('success'),
         data: {
             availableNumbers: availableArray.join(','),
             availableNumberDitails: response
-        },
-        message: req.t('success')
+        }
     });
 };
 
@@ -395,6 +419,7 @@ exports.mobileAnalysis = (req, res) => {
 
     return res.json({
         success: true,
+        message: req.t('success'),
         data: {
             mobileNumber: `${req.t('your_mobile_number_is')}: ${phone}`,
             mobileNumberSum: `${req.t('your_mobile_number_sum_is')}: ${mobileNumber}`,
@@ -403,8 +428,7 @@ exports.mobileAnalysis = (req, res) => {
             mobileNumberSumResult,
             negativeNumbers: negativeNumbersText,
             pairsOfThree: tripletsText
-        },
-        message: req.t('success')
+        }
     });
 };
 
@@ -412,7 +436,11 @@ exports.nameAnalysis = (req, res) => {
     const { name, date, gender, lang = 'en' } = req.query;
 
     if (!name || !date || !gender) {
-        return res.status(400).json({ error: req.t('name_date_gender_required') });
+        return res.status(400).json({
+            success: false,
+            message: req.t('validation_error'),
+            errors: [req.t('name_date_gender_required')]
+        });
     }
 
     const radicalNumber = calculateRadicalNumber(date);
@@ -442,26 +470,30 @@ exports.nameAnalysis = (req, res) => {
     const moolank = lang === 'hi' ? 'मूलांक' : lang === 'ka' ? 'ಮೂಲಾಂಕ' : 'Moolank';
     const bhagyank = lang === 'hi' ? 'भाग्यांक' : lang === 'ka' ? 'ಭಾಗ್ಯಾಂಕ' : 'Bhagyank';
 
-    res.json({
-        description: req.t('name_number_description'),
-        nameNumber: `${req.t('your_name_number')} : ${nameNumber}`,
-        nameCompatibilityAsPerMoolank: getCompatibilityMessage(nameNumber, driver, moolank, label, req.t),
-        nameCompatibilityAsPerBhagyank: getCompatibilityMessage(nameNumber, conductor, bhagyank, label, req.t),
-        overallNameCompatibilityAsPerMoolankBhagyank: getOverallCompatibility(nameNumber, lucky, neutral, unlucky, label, req.t),
+    return res.json({
+        success: true,
+        message: req.t('success'),
+        data: {
+            description: req.t('name_number_description'),
+            nameNumber: `${req.t('your_name_number')} : ${nameNumber}`,
+            nameCompatibilityAsPerMoolank: getCompatibilityMessage(nameNumber, driver, moolank, label, req.t),
+            nameCompatibilityAsPerBhagyank: getCompatibilityMessage(nameNumber, conductor, bhagyank, label, req.t),
+            overallNameCompatibilityAsPerMoolankBhagyank: getOverallCompatibility(nameNumber, lucky, neutral, unlucky, label, req.t),
 
-        firstNameNumber: `${req.t('your_first_name_number')} : ${firstNameNumber}`,
-        firstNameCompatibilityAsPerMoolank: getCompatibilityMessage(firstNameNumber, driver, moolank, firstLabel, req.t),
-        firstNameCompatibilityAsPerBhagyank: getCompatibilityMessage(firstNameNumber, conductor, bhagyank, firstLabel, req.t),
-        overallFirstNameCompatibilityAsPerMoolankBhagyank: getOverallCompatibility(firstNameNumber, lucky, neutral, unlucky, firstLabel, req.t),
+            firstNameNumber: `${req.t('your_first_name_number')} : ${firstNameNumber}`,
+            firstNameCompatibilityAsPerMoolank: getCompatibilityMessage(firstNameNumber, driver, moolank, firstLabel, req.t),
+            firstNameCompatibilityAsPerBhagyank: getCompatibilityMessage(firstNameNumber, conductor, bhagyank, firstLabel, req.t),
+            overallFirstNameCompatibilityAsPerMoolankBhagyank: getOverallCompatibility(firstNameNumber, lucky, neutral, unlucky, firstLabel, req.t),
 
-        suggestedNameNumber: req.t('suggested_name_number_title'),
-        luckyNumbers: `${req.t('favourable_numbers')} : ${lucky.join(', ')}`,
-        neutralNumbers: `${req.t('neutral_numbers')} : ${neutral.join(', ')}`,
-        unluckyNumbers: `${req.t('unlucky_numbers')} : ${unlucky.join(', ')}`,
-        suggestedTotal: suggestedTotal.length > 0
-            ? `${req.t('suggested_name_total')} : ${suggestedTotal.join(', ')}`
-            : req.t('no_suggested_name_total'),
-        suggestedNameSpellings: getSuggestedNameSpellings(suggestedTotal, req.t)
+            suggestedNameNumber: req.t('suggested_name_number_title'),
+            luckyNumbers: `${req.t('favourable_numbers')} : ${lucky.join(', ')}`,
+            neutralNumbers: `${req.t('neutral_numbers')} : ${neutral.join(', ')}`,
+            unluckyNumbers: `${req.t('unlucky_numbers')} : ${unlucky.join(', ')}`,
+            suggestedTotal: suggestedTotal.length > 0
+                ? `${req.t('suggested_name_total')} : ${suggestedTotal.join(', ')}`
+                : req.t('no_suggested_name_total'),
+            suggestedNameSpellings: getSuggestedNameSpellings(suggestedTotal, req.t)
+        },
     });
 };
 
@@ -525,6 +557,7 @@ exports.vehicleAnalysis = (req, res) => {
 
     return res.json({
         success: true,
+        message: req.t('success'),
         data: {
             vehicleNumber: `${req.t('your_vehicle_number_is')}: ${vehicle}`,
             vehicleNumberSum: `${req.t('your_vehicle_number_sum_is')}: ${vehicleNumber}`,
@@ -533,8 +566,7 @@ exports.vehicleAnalysis = (req, res) => {
             vehicleNumberSumResult,
             negativeNumbers: negativeNumbersText,
             pairsOfThree: tripletsText
-        },
-        message: req.t('success')
+        }
     });
 };
 
@@ -566,7 +598,7 @@ exports.rudrakshaSuggestion = (req, res) => {
     return res.status(200).json({
         success: true,
         message: req.t('success'),
-        data: data
+        data
     });
 };
 
@@ -605,7 +637,7 @@ exports.clothColour = (req, res) => {
     return res.status(200).json({
         success: true,
         message: req.t('success'),
-        data: data
+        data
     });
 };
 
@@ -642,7 +674,7 @@ exports.watchColour = (req, res) => {
     return res.status(200).json({
         success: true,
         message: req.t('success'),
-        data: data
+        data
     });
 };
 
@@ -695,7 +727,7 @@ exports.oilSuggestion = (req, res) => {
     return res.status(200).json({
         success: true,
         message: req.t('success'),
-        data: data
+        data
     });
 };
 
@@ -731,7 +763,7 @@ exports.healthAnalysis = (req, res) => {
     return res.status(200).json({
         success: true,
         message: req.t('success'),
-        data: data
+        data
     });
 };
 
@@ -1146,7 +1178,7 @@ exports.karmicNumber = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: req.t('success'),
-            data: data
+            data
         });
     } catch (err) {
         console.error('Error fetching karmic number from JSON:', err);
@@ -1204,7 +1236,7 @@ exports.karmicNumber = async (req, res) => {
 //         return res.status(200).json({
 //             success: true,
 //             message: req.t('success'),
-//             data: data
+//             data
 //         });
 //     } catch (err) {
 //         console.error('Error fetching karmic number:', err);
