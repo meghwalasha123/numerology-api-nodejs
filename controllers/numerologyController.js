@@ -38,7 +38,7 @@ const {
 } = require('../utils');
 
 // Main loshuGrid controller
-exports.loshuGrid = (req, res) => {
+function loshuGrid(req, res) {
     const { date, gender, lang = 'en' } = req.query;
 
     if (!date || !gender) {
@@ -115,7 +115,7 @@ exports.loshuGrid = (req, res) => {
 };
 
 // Number Analysis Controller
-exports.numberAnalysis = (req, res) => {
+function numberAnalysis(req, res) {
     const { name, date, phone, lang = 'en' } = req.query;
 
     // Validation
@@ -156,7 +156,7 @@ exports.numberAnalysis = (req, res) => {
     });
 };
 
-// exports.intellectualPlane = (req, res) => {
+// function intellectualPlane(req, res) {
 //     const { date, gender } = req.query;
 
 //     if (!date || !gender) {
@@ -184,7 +184,7 @@ exports.numberAnalysis = (req, res) => {
 //     });
 // };
 
-exports.planeDetails = (req, res) => {
+function planeDetails(req, res) {
     const type = req.params.type.replace('-plane', '');
     const { date, gender } = req.query;
 
@@ -235,7 +235,7 @@ exports.planeDetails = (req, res) => {
     });
 };
 
-exports.missingNumbers = (req, res) => {
+function missingNumbers(req, res) {
     const { date, gender } = req.query;
 
     if (!date || !gender) {
@@ -318,7 +318,7 @@ exports.missingNumbers = (req, res) => {
     });
 };
 
-exports.availableNumbers = (req, res) => {
+function availableNumbers(req, res) {
     const { date, gender } = req.query;
 
     if (!date || !gender) {
@@ -360,7 +360,7 @@ exports.availableNumbers = (req, res) => {
     });
 };
 
-exports.mobileAnalysis = (req, res) => {
+function mobileAnalysis(req, res) {
     const { phone } = req.query;
 
     if (!phone || !/^\d{10}$/.test(phone)) {
@@ -432,7 +432,7 @@ exports.mobileAnalysis = (req, res) => {
     });
 };
 
-exports.nameAnalysis = (req, res) => {
+function nameAnalysis(req, res) {
     const { name, date, gender, lang = 'en' } = req.query;
 
     if (!name || !date || !gender) {
@@ -497,7 +497,7 @@ exports.nameAnalysis = (req, res) => {
     });
 };
 
-exports.vehicleAnalysis = (req, res) => {
+function vehicleAnalysis(req, res) {
     const { vehicle } = req.query;
     const lang = req.language || 'en';
 
@@ -570,7 +570,7 @@ exports.vehicleAnalysis = (req, res) => {
     });
 };
 
-exports.rudrakshaSuggestion = (req, res) => {
+function rudrakshaSuggestion(req, res) {
     const date = req.query.date; // for GET; use req.body.date for POST
 
     if (!date || isNaN(Date.parse(date))) {
@@ -604,7 +604,7 @@ exports.rudrakshaSuggestion = (req, res) => {
 
 const predictions = require('../data/predictions.json');
 
-exports.clothColour = (req, res) => {
+function clothColour(req, res) {
     const date = req.query.date; // use req.body.date for POST method
     const locale = req.query.lang || 'en'; // default to English
 
@@ -641,7 +641,7 @@ exports.clothColour = (req, res) => {
     });
 };
 
-exports.watchColour = (req, res) => {
+function watchColour(req, res) {
     const date = req.query.date;
     const locale = req.query.lang || 'en';
 
@@ -678,7 +678,7 @@ exports.watchColour = (req, res) => {
     });
 };
 
-exports.oilSuggestion = (req, res) => {
+function oilSuggestion(req, res) {
     const date = req.query.date;
     const locale = req.query.lang || 'en';
 
@@ -731,7 +731,7 @@ exports.oilSuggestion = (req, res) => {
     });
 };
 
-exports.healthAnalysis = (req, res) => {
+function healthAnalysis(req, res) {
     const date = req.query.date;
     const locale = req.query.lang || 'en';
 
@@ -767,7 +767,7 @@ exports.healthAnalysis = (req, res) => {
     });
 };
 
-exports.marriageRelationship = (req, res) => {
+function marriageRelationship(req, res) {
     const date = req.query.date;
     const locale = req.query.lang || 'en';
 
@@ -803,7 +803,7 @@ exports.marriageRelationship = (req, res) => {
     });
 };
 
-exports.luckyThings = (req, res) => {
+function luckyThings(req, res) {
     const date = req.query.date;
     const locale = req.query.lang || 'en';
 
@@ -913,7 +913,7 @@ exports.luckyThings = (req, res) => {
     });
 };
 
-exports.remedies = (req, res) => {
+function remedies(req, res) {
     const { date, gender } = req.query;
 
     if (!date || isNaN(Date.parse(date)) || !gender) {
@@ -933,7 +933,7 @@ exports.remedies = (req, res) => {
     });
 };
 
-exports.careerAnalysis = (req, res) => {
+function careerAnalysis(req, res) {
     const date = req.query.date;
     const locale = req.query.lang || 'en';
 
@@ -969,7 +969,7 @@ exports.careerAnalysis = (req, res) => {
     });
 };
 
-exports.moneyAnalysis = (req, res) => {
+function moneyAnalysis(req, res) {
     const date = req.query.date;
     const locale = req.query.lang || 'en';
 
@@ -1005,7 +1005,7 @@ exports.moneyAnalysis = (req, res) => {
     });
 };
 
-exports.jobAnalysis = (req, res) => {
+function jobAnalysis(req, res) {
     const date = req.query.date;
     const locale = req.query.lang || 'en';
 
@@ -1043,7 +1043,7 @@ exports.jobAnalysis = (req, res) => {
 
 const personalYearData = require('../data/personalYear.json'); // Or fetch from DB
 
-exports.personalYear = (req, res) => {
+function personalYear(req, res) {
     const date = req.query.date;
 
     if (!date || isNaN(Date.parse(date))) {
@@ -1134,7 +1134,7 @@ exports.personalYear = (req, res) => {
 const fs = require('fs');
 const path = require('path');
 
-exports.karmicNumber = async (req, res) => {
+async function karmicNumber(req, res) {
     const { date, lang = 'en' } = req.query;
 
     // Basic validation for date format: yyyy-mm-dd
@@ -1191,7 +1191,7 @@ exports.karmicNumber = async (req, res) => {
 
 // const KarmicNumber = require('../models/KarmicNumber'); // Replace with your model
 
-// exports.karmicNumber = async (req, res) => {
+// async function karmicNumber(req, res) {
 //     const { date, lang = 'en' } = req.query;
 
 //     if (!date || !isValid(parseISO(date))) {
@@ -1247,7 +1247,7 @@ exports.karmicNumber = async (req, res) => {
 //     }
 // };
 
-exports.masterDriver = (req, res) => {
+function masterDriver(req, res) {
     const date = req.query.date;
 
     if (!date || isNaN(Date.parse(date))) {
@@ -1301,7 +1301,7 @@ exports.masterDriver = (req, res) => {
     });
 };
 
-exports.masterConductor = (req, res) => {
+function masterConductor(req, res) {
     const date = req.query.date;
 
     if (!date || isNaN(Date.parse(date))) {
@@ -1372,4 +1372,30 @@ exports.masterConductor = (req, res) => {
         message: req.t('success'),
         data: { masterDriver }
     });
+};
+
+module.exports = {
+    loshuGrid,
+    numberAnalysis,
+    planeDetails,
+    missingNumbers,
+    availableNumbers,
+    mobileAnalysis,
+    nameAnalysis,
+    vehicleAnalysis,
+    rudrakshaSuggestion,
+    clothColour,
+    watchColour,
+    oilSuggestion,
+    healthAnalysis,
+    marriageRelationship,
+    luckyThings,
+    remedies,
+    careerAnalysis,
+    moneyAnalysis,
+    jobAnalysis,
+    personalYear,
+    karmicNumber,
+    masterDriver,
+    masterConductor,
 };
