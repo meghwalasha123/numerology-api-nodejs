@@ -1,5 +1,8 @@
 const express = require('express');
-const i18n = require('i18n');
+const i18next = require('i18next');
+const i18nextMiddleware = require('i18next-http-middleware');
+const Backend = require('i18next-fs-backend');
+const setLanguage = require('./middleware/setLanguage');
 const path = require('path');
 
 const app = express();
@@ -7,16 +10,26 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // i18n config
-i18n.configure({
-    locales: ['en', 'hi', 'ka'],
-    defaultLocale: 'en',
-    queryParameter: 'lang', // read ?lang=en from URL
-    directory: path.join(__dirname, 'locales'),
-    autoReload: true,
-    objectNotation: true
-});
+i18next
+    .use(Backend)
+    .use(i18nextMiddleware.LanguageDetector)
+    .init({
+        fallbackLng: 'en',
+        preload: ['en', 'hi', 'ka'], // preload all your supported languages
+        detection: {
+            order: ['querystring', 'header'],
+            lookupQuerystring: 'lang'  // read ?lang=hi
+        },
+        backend: {
+            loadPath: path.join(__dirname, '/locales/{{lng}}.json'),
+        },
+        interpolation: {
+            escapeValue: false
+        }
+    });
 
-app.use(i18n.init);
+app.use(i18nextMiddleware.handle(i18next));
+app.use(setLanguage);
 
 const numerologyRoutes = require('./routes/numerology'); // path sahi set karo
 

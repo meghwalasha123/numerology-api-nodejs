@@ -139,7 +139,7 @@ function realDigits(date, gender) {
     return [...digits.map(Number), radical, destiny, kua];
 }
 
-function getPlaneDetails({ date, gender, planeDigits, plane, weight }, res) {
+function getPlaneDetails({ date, gender, planeDigits, plane, weight }, req) {
     const grid = loShuGrid(date, gender);
     const formatted = `(${planeDigits.join('-')})`;
 
@@ -147,10 +147,10 @@ function getPlaneDetails({ date, gender, planeDigits, plane, weight }, res) {
     const percentage = Math.floor((planeValues.length / planeDigits.length) * 100);
 
     return {
-        planeName: res.__(`${plane} Plane`).toUpperCase(),
-        planeNumber: `${res.__(`${plane} plane`)} ${formatted} : ${planeValues.join(', ')}`,
-        description: res.__(`${plane} plane description`),
-        weightage: res.__(`${plane} plane weightage`, { [weight]: percentage }),
+        planeName: req.t(`${plane}_plane`).toUpperCase(),
+        planeNumber: `${req.t(`${plane}_plane_with_digits`, { digits: formatted })} : ${planeValues.join(', ')}`,
+        description: req.t(`${plane}_plane_description`),
+        weightage: req.t(`${plane}_plane_weightage`, { [weight]: percentage }),
         percentage
     };
 }
@@ -168,24 +168,25 @@ function getRealDigits(date, gender) {
 
 function analyzeEachNumber(number) {
     const digits = number.replace(/\D/g, '');
-    const meanings = {
-        1: 'Leadership, independence, originality',
-        2: 'Cooperation, balance, relationships',
-        3: 'Creativity, joy, communication',
-        4: 'Stability, practicality, hard work',
-        5: 'Freedom, adventure, change',
-        6: 'Responsibility, care, love for family',
-        7: 'Spirituality, introspection, wisdom',
-        8: 'Power, ambition, material success',
-        9: 'Compassion, universal love, humanitarianism'
+
+    const meaningKeys = {
+        1: 'digit_meaning_1',
+        2: 'digit_meaning_2',
+        3: 'digit_meaning_3',
+        4: 'digit_meaning_4',
+        5: 'digit_meaning_5',
+        6: 'digit_meaning_6',
+        7: 'digit_meaning_7',
+        8: 'digit_meaning_8',
+        9: 'digit_meaning_9'
     };
 
     const processed = new Set();
     const analysis = [];
 
     for (const digit of digits) {
-        if (!processed.has(digit) && meanings[digit]) {
-            analysis.push({ digit, meaning: meanings[digit] });
+        if (!processed.has(digit) && meaningKeys[digit]) {
+            analysis.push({ digit, meaning: meaningKeys[digit] });
             processed.add(digit);
         }
     }
@@ -267,24 +268,70 @@ function suggestNameSpellingTotal(lucky, neutral, driver, conductor) {
     return suggested;
 }
 
-function getCompatibilityMessage(number, chart, type, label = "Name") {
+function getCompatibilityMessage(number, chart, type, label, t) {
     if (chart.friend.includes(number.toString())) {
-        return `Great!! ${label} is matching as per ${type}`;
+        return t('compatibility.great', { label, type });
     } else if (chart.neutral.includes(number.toString())) {
-        return `${label} Match is Average as per ${type}`;
+        return t('compatibility.average', { label, type });
     } else {
-        return `${label} needs to be analyzed. Its not aligned as per ${type}`;
+        return t('compatibility.not_aligned', { label, type });
     }
 }
 
-function getOverallCompatibility(number, lucky, neutral, unlucky, label = 'Name') {
+function getOverallCompatibility(number, lucky, neutral, unlucky, label, t) {
     if (lucky.includes(number.toString())) {
-        return `Great!! ${label} is matching as per Moolank & Bhagyank`;
+        return t('compatibility.great_overall', { label });
     } else if (neutral.includes(number.toString())) {
-        return `${label} Match is Average as per Moolank & Bhagyank`;
+        return t('compatibility.average_overall', { label });
     } else {
-        return `${label} needs to be analyzed. Kindly consult with Good Numerologist for ${label} Analysis. Highly Recommended`;
+        return t('compatibility.not_aligned_overall', { label });
     }
+}
+
+function getSuggestedNameSpellings(suggestedTotal, t) {
+    const messages = {
+        1: {
+            title: t('The name spelling should come to a total of 1'),
+            descriptions: [
+                t('If 5 and 6 both are available / present in the numeroscope'),
+                t('Neither the driver nor conductor number is 8, the name spelling should total 1.'),
+            ],
+        },
+        3: {
+            title: t('The name spelling should be considered for a total of 3'),
+            descriptions: [
+                t('If no.3 is missing in the numeroscope'),
+                t('Neither the driver nor conductor number is 6,'),
+                t('The person is in a specific profession (field of education, medicine or spirituality), the name spelling should total 3.'),
+            ],
+        },
+        5: {
+            title: t('The name spelling should come to a total of 5'),
+            descriptions: [
+                t('If no.5 is missing in the numeroscope'),
+                t('It completes 2 5 8 or 4 5 6 line when added. Changes life'),
+            ],
+        },
+        6: {
+            title: t('The name spelling should come to a total of 6'),
+            descriptions: [
+                t('If no.6 is missing in the numeroscope'),
+                t('Neither the driver nor conductor number is 3, the name spelling should total 6.'),
+            ],
+        },
+    };
+
+    const output = [];
+
+    for (const total of suggestedTotal) {
+        if (messages[total]) {
+            output.push({
+                [messages[total].title]: messages[total].descriptions
+            });
+        }
+    }
+
+    return output;
 }
 
 function getZodiacByDate(birthDate) {
@@ -362,76 +409,76 @@ const calculateLuckyDates = (radicalNumber) => {
     return luckyDatesMap[radicalNumber] || [];
 };
 
-const getRemedyDescriptions = (birthDate, gender, __) => {
+const getRemedyDescriptions = (birthDate, gender, t) => {
     const real = realDigits(birthDate, gender);
     const allDigits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     const missingNumbers = allDigits.filter(num => !real.includes(num));
 
     const descriptionMap = {
         '1': [
-            __('Drink lots of water'),
-            __('Offer water to Sun in the mornings.'),
-            __('Note: Those who have driver or conductor number as 8, do not offer water to Sun. Lota of tamba / Kum Kum. There is no effect of Kua number.'),
-            __('Take blessings of your father or father figure, personally or by mobile or by photo.')
+            t('Drink lots of water'),
+            t('Offer water to Sun in the mornings.'),
+            t('Note: Those who have driver or conductor number as 8, do not offer water to Sun. Lota of tamba / Kum Kum. There is no effect of Kua number.'),
+            t('Take blessings of your father or father figure, personally or by mobile or by photo.')
         ],
         '2': [
-            __('Wear pearls or crystals and keep a pair of silver Swan statues in the house.'),
-            __('Hang pictures of Mountains without any lake, sea, river in the South West corner of the home.'),
-            __('Donate white colored items like sugar, rice, white clothes to the beggar.'),
-            __('Keep Earthen pot in the Southwest corner of the house.'),
-            __("Drink water stored in a silver or copper vessel overnight to enhance the Moon's calming effects."),
-            __("Take blessings of your Mother personally or by mobile or by photo.")
+            t('Wear pearls or crystals and keep a pair of silver Swan statues in the house.'),
+            t('Hang pictures of Mountains without any lake, sea, river in the South West corner of the home.'),
+            t('Donate white colored items like sugar, rice, white clothes to the beggar.'),
+            t('Keep Earthen pot in the Southwest corner of the house.'),
+            t("Drink water stored in a silver or copper vessel overnight to enhance the Moon's calming effects."),
+            t("Take blessings of your Mother personally or by mobile or by photo.")
         ],
         '3': [
-            __('Must wear a Tulsi mala made of five Mukhi Rudraksha.'),
-            __('The east side of the house should include scenes of green plants because number three stands for the wood element.'),
-            __('Put a tilak on your forehead with saffron'),
-            __('Always carry something made of wood (for example, a sandalwood rosary, a wooden bracelet, or a pen).'),
-            __('Avoid Rahu Kaal for any important activities or wearing remedies. Check the timing daily.'),
-            __('Take blessings from your Guru and always give respect full heartedly.')
+            t('Must wear a Tulsi mala made of five Mukhi Rudraksha.'),
+            t('The east side of the house should include scenes of green plants because number three stands for the wood element.'),
+            t('Put a tilak on your forehead with saffron'),
+            t('Always carry something made of wood (for example, a sandalwood rosary, a wooden bracelet, or a pen).'),
+            t('Avoid Rahu Kaal for any important activities or wearing remedies. Check the timing daily.'),
+            t('Take blessings from your Guru and always give respect full heartedly.')
         ],
         '4': [
-            __('One should wear Tulsi Mala along with Five Mukhi Rudraksha and donate coconut as the fourth number means wood element.'),
-            __('Always carry something wooden, such as a pen, bracelet, or keychain.'),
-            __('Should wear on lucky date only'),
-            __('Check Rahu Kaal daily and avoid important tasks during this time.'),
-            __('Keep South-East landscapes lush with vegetation.'),
-            __('Must help, support, respect poor needy people by giving them food, water, medicines etc.'),
+            t('One should wear Tulsi Mala along with Five Mukhi Rudraksha and donate coconut as the fourth number means wood element.'),
+            t('Always carry something wooden, such as a pen, bracelet, or keychain.'),
+            t('Should wear on lucky date only'),
+            t('Check Rahu Kaal daily and avoid important tasks during this time.'),
+            t('Keep South-East landscapes lush with vegetation.'),
+            t('Must help, support, respect poor needy people by giving them food, water, medicines etc.'),
         ],
         '5': [
-            __('Must wear clear crystal (Spatik) bracelet or mala 23 bits, It will cleanse the aura and there will be no negative thoughts.'),
-            __('Must wear any shade of green colour daily.'),
-            __('Must eat green vegetables.'),
-            __('Offer green grass to cow every day, specially on Wednesday.'),
-            __('Walk barefoot every morning.'),
-            __('Must help, support and respect poor, needy, orphan kids by giving them clothes, food, water, medicines, education, books etc'),
-            __('Green Mask / Wear Crystal Mala/ Green Shade/ Hankerchief/Sabji/ Dhaniya/')
+            t('Must wear clear crystal (Spatik) bracelet or mala 23 bits, It will cleanse the aura and there will be no negative thoughts.'),
+            t('Must wear any shade of green colour daily.'),
+            t('Must eat green vegetables.'),
+            t('Offer green grass to cow every day, specially on Wednesday.'),
+            t('Walk barefoot every morning.'),
+            t('Must help, support and respect poor, needy, orphan kids by giving them clothes, food, water, medicines, education, books etc'),
+            t('Green Mask / Wear Crystal Mala/ Green Shade/ Hankerchief/Sabji/ Dhaniya/')
         ],
         '6': [
-            __('Must wear gold & silver combination metal strap watch.'),
-            __('Vibration of metal watch enters body & connects you with the time & vice versa.'),
-            __('Spend money for yourself by buying branded clothes, perfumes, accessories etc.')
+            t('Must wear gold & silver combination metal strap watch.'),
+            t('Vibration of metal watch enters body & connects you with the time & vice versa.'),
+            t('Spend money for yourself by buying branded clothes, perfumes, accessories etc.')
         ],
         '7': [
-            __('Must wear gold metal strap watch.'),
-            __('Do lots of religious work like performing puja, giving time and services to religious places, giving donations and providing better infrastructure if possible. Devote yourself in religious activities.')
+            t('Must wear gold metal strap watch.'),
+            t('Do lots of religious work like performing puja, giving time and services to religious places, giving donations and providing better infrastructure if possible. Devote yourself in religious activities.')
         ],
         '8': [
-            __('On Saturdays, they should refrain from eating non-vegetarian fare and instead fast.'),
-            __('Keep an urn of water and crystals in the north-east direction.'),
-            __('Donate salty foods to needy people.'),
-            __('Give respect to people who are giving services to you such as, liftman, watchman, rickshaw drivers, taxi drivers, sweepers and your employees as well.')
+            t('On Saturdays, they should refrain from eating non-vegetarian fare and instead fast.'),
+            t('Keep an urn of water and crystals in the north-east direction.'),
+            t('Donate salty foods to needy people.'),
+            t('Give respect to people who are giving services to you such as, liftman, watchman, rickshaw drivers, taxi drivers, sweepers and your employees as well.')
         ],
         '9': [
-            __('Must wear red thread on hand always'),
-            __('Must wear red colour on Tuesdays.'),
-            __('Wear Red clothes / Inner garment'),
-            __('Give respect to people who are giving services to you such as, traffic police, army, doctors.'),
+            t('Must wear red thread on hand always'),
+            t('Must wear red colour on Tuesdays.'),
+            t('Wear Red clothes / Inner garment'),
+            t('Give respect to people who are giving services to you such as, traffic police, army, doctors.'),
         ],
     };
 
     const remedies = missingNumbers.map((num) => ({
-        [`${__('Missing Number')} ${num}`]: descriptionMap[num] || [__('No Description Available')]
+        [t('missing_number_label', { number: num })]: descriptionMap[num.toString()] || [t('no_description_available')]
     }));
 
     return {
@@ -449,6 +496,36 @@ function calculatePersonalYear(birthDay, birthMonth, currentYear) {
     }
 
     return sum;
+}
+
+function calculateMasterNumberByRadical(birthDate) {
+    const day = parseInt(birthDate.split('-')[2], 10);
+    return reduceToMasterNumber(day);
+}
+
+function reduceToMasterNumber(number) {
+    while (number > 9 && number !== 11 && number !== 22 && number !== 33) {
+        number = number.toString().split('').reduce((sum, digit) => sum + parseInt(digit, 10), 0);
+    }
+    return number;
+}
+
+function calculateMasterDestinyNumber(birthDay, birthMonth, birthYear) {
+    const horizontal = digitSum(birthDay) + digitSum(birthMonth) + digitSum(birthYear);
+    const vertical = birthDay + birthMonth + birthYear;
+    const verticalCompoundSum = digitSum(vertical);
+    const verticalSum = reduceToSingleDigit(verticalCompoundSum);
+
+    return {
+        horizontal,
+        vertical,
+        verticalCompoundSum,
+        verticalSum
+    };
+}
+
+function digitSum(number) {
+    return number.toString().split('').reduce((acc, digit) => acc + parseInt(digit), 0);
 }
 
 module.exports = {
@@ -480,9 +557,12 @@ module.exports = {
     suggestNameSpellingTotal,
     getCompatibilityMessage,
     getOverallCompatibility,
+    getSuggestedNameSpellings,
     getZodiacByDate,
     getRudrakshaSuggestion,
     calculateLuckyDates,
     getRemedyDescriptions,
-    calculatePersonalYear
+    calculatePersonalYear,
+    calculateMasterNumberByRadical,
+    calculateMasterDestinyNumber
 };
